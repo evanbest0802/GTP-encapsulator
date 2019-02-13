@@ -1,5 +1,20 @@
-#include	"unp.h"
-
+//#include	"unp.h"
+#include	<sys/types.h>
+#include	<sys/socket.h>
+#include	<netinet/in.h>	
+#include	<arpa/inet.h>	
+#include	<errno.h>
+#include	<fcntl.h>		
+#include	<netdb.h>
+#include	<signal.h>
+#include	<stdio.h>
+#include	<stdlib.h>
+#include	<string.h>
+#include	<sys/stat.h>	
+#include	<sys/uio.h>		
+#include	<unistd.h>
+#include	<sys/wait.h>
+#include	<sys/un.h>
 int
 main(int argc, char **argv)
 {
@@ -7,7 +22,10 @@ main(int argc, char **argv)
 	struct sockaddr_in	servaddr;
 	char	sendline[1500];
 	if (argc != 2)
-		err_quit("usage: tcpcli <IPaddress>");
+	{
+		printf("usage: tcpcli <IPaddress>");
+		return -1;
+	}
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -16,7 +34,7 @@ main(int argc, char **argv)
 	servaddr.sin_port = htons(5202);
 	inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
 
-	connect(sockfd, (SA *) &servaddr, sizeof(servaddr));
+	connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
 	//str_cli(stdin, sockfd);		/* do it all */
 
