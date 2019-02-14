@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 		sendto(udpfd,sendbuffer,n+sizeof(gtp_header),0,(struct sockaddr*)&remoteaddr,sizeof(remoteaddr));
 		free(sendbuffer);
 		free(gtpuheader);
-		
+		free(recvbuffer);
 		close(udpfd);
 	}
 }
