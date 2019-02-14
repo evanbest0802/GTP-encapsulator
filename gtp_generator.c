@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 {
 	int sockfd,udpfd,n;
 	
-	struct sockaddr_in	cliaddr, servaddr,remoteaddr;
+	struct sockaddr_in servaddr,remoteaddr;
 	char line[1500];
 	void *sendbuffer,*recvbuffer;
 	sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
