@@ -26,12 +26,12 @@ typedef struct gtp_header_t
 
 int main(int argc, char **argv)
 {
-	int sockfd,udpfd,n,sendbufferlen;
+	int sockfd,udpfd,n;
 	
 	struct sockaddr_in	cliaddr, servaddr,remoteaddr;
 	char line[1500];
-	void *sendbuffer;
-	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	void *sendbuffer,*recvbuffer;
+	sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
@@ -42,27 +42,28 @@ int main(int argc, char **argv)
 
 	for(;;)
 	{
+		recvbuffer = calloc(2000,sizeof(char));
 		bzero(&line, sizeof(line));
-		socklen_t clilen = sizeof(cliaddr);
-		n = recvfrom(sockfd, line,1500, 0, (struct sockaddr*)&cliaddr, &clilen);
-		//printf("%s %d %d\n",line,strlen(line),sizeof(gtp_header));
+		printf("before receive:\n");
+		n = recvfrom(sockfd, recvbuffer,2000, 0, NULL, NULL);
+		printf("after receive: %d\n",n);
 		sendbuffer = calloc(2000,sizeof(char));
 		gtp_header* gtpuheader=calloc(1,sizeof(gtp_header));
 		gtpuheader->flag = 0x30;
 		gtpuheader->type = 255;
-		gtpuheader->length = htons(strlen(line));
+		gtpuheader->length = htons(n+sizeof(gtp_header));
 		gtpuheader->teid = htonl(0);
 		memcpy(sendbuffer,gtpuheader, sizeof(gtp_header));		
-		memcpy(sendbuffer+sizeof(gtp_header), line, strlen(line)+1);
+		memcpy(sendbuffer+sizeof(gtp_header), recvbuffer, n);
 		
-		printf("after read\n");
+		printf("after read and adding header:\n");
 		udpfd = socket(AF_INET, SOCK_DGRAM, 0);
 		bzero(&remoteaddr, sizeof(remoteaddr));
 		remoteaddr.sin_family = AF_INET;
 		remoteaddr.sin_port = htons(2152);
-		inet_pton(AF_INET, "127.0.0.15", &remoteaddr.sin_addr);
+		inet_pton(AF_INET, "127.0.0.5", &remoteaddr.sin_addr);
 		printf("%d\n",setsockopt(udpfd,SOL_SOCKET,SO_BINDTODEVICE,"enp0s9",6));
-		sendto(udpfd,sendbuffer,strlen(line)+8,0,(struct sockaddr*)&remoteaddr,sizeof(remoteaddr));
+		sendto(udpfd,sendbuffer,n+sizeof(gtp_header),0,(struct sockaddr*)&remoteaddr,sizeof(remoteaddr));
 		free(sendbuffer);
 		free(gtpuheader);
 		
