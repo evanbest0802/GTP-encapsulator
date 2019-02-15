@@ -1,16 +1,16 @@
 #include	<sys/types.h>
 #include	<sys/socket.h>
 #include	<netinet/in.h>	
-#include	<arpa/inet.h>	
+#include	<arpa/inet.h>
 #include	<errno.h>
-#include	<fcntl.h>		
+#include	<fcntl.h>
 #include	<netdb.h>
 #include	<signal.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<sys/stat.h>	
-#include	<sys/uio.h>		
+#include	<sys/stat.h>
+#include	<sys/uio.h>
 #include	<unistd.h>
 #include	<sys/wait.h>
 #include	<sys/un.h>
@@ -18,12 +18,13 @@
 #include	<stdint.h>
 int main(int argc, char **argv)
 {
-	int					sockfd;
-	struct sockaddr_in	servaddr;
-	char	sendline[1500];
+	int sendfd,recvfd;
+	struct sockaddr_in servaddr,local,cliaddr;
+	socklen_t cliaddrlen = sizeof(cliaddr);
+	char sendline[1500],recvline[1500];
 	if (argc != 2)
 	{
-		printf("usage: udpcli <IPaddress>\n");
+		printf("usage: udp_packet_sender <IPaddress>\n");
 		return -1;
 	}
 	bzero(&servaddr, sizeof(servaddr));
@@ -31,20 +32,18 @@ int main(int argc, char **argv)
 	servaddr.sin_port = htons(5202);
 	inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
 
-	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	local.sin_family = AF_INET;
+	local.sin_port = htons(2152);
+	local.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	//dg_cli(stdin, sockfd, (SA *) &servaddr, sizeof(servaddr));
-	
-
+	sendfd = socket(AF_INET, SOCK_DGRAM, 0);
 	while (fgets(sendline, 1500, stdin) != NULL) {
-
-		sendto(sockfd, sendline, strlen(sendline), 0, (struct sockaddr*)&servaddr, sizeof(servaddr));
-
-		//n = Recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
-
-		//recvline[n] = 0;	/* null terminate */
-		//Fputs(recvline, stdout);
+		
+		sendto(sendfd, sendline, strlen(sendline), 0, (struct sockaddr*)&servaddr, sizeof(servaddr));
 		printf("packet send\n");
+		recvfd = socket(AF_INET, SOCK_DGRAM, 0);
+		bind(recvfd,(struct sockaddr*)&local,sizeof(local));	
+		recvfrom(recvfd,recvline,1500,0,(struct sockaddr*)&cliaddr, &cliaddrlen);
 	}
 	exit(0);
 }
