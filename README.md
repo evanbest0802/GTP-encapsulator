@@ -6,12 +6,12 @@ Use make to generate gtp_generator and udp_packet_sender.
 make
 ```
 ## Run gtp_generator
-Please use superuser privilege to run this program.
+Please use superuser privilege to run server program.
 ```bash
 sudo ./gtp_generator
 ```
 ## Run udp_packet_sender
-type the command below to run this program.
+type the command below to run client program.
 ```bash
-./udp_paccket_generator <server IP address>
+./udp_packet_sender <server IP address>
 ```
