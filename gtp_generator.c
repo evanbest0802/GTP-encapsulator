@@ -1,16 +1,16 @@
 #include	<sys/types.h>
 #include	<sys/socket.h>
-#include	<netinet/in.h>	
-#include	<arpa/inet.h>	
+#include	<netinet/in.h>
+#include	<arpa/inet.h>
 #include	<errno.h>
-#include	<fcntl.h>		
+#include	<fcntl.h>
 #include	<netdb.h>
 #include	<signal.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<sys/stat.h>	
-#include	<sys/uio.h>		
+#include	<sys/stat.h>
+#include	<sys/uio.h>
 #include	<unistd.h>
 #include	<sys/wait.h>
 #include	<sys/un.h>
@@ -55,13 +55,13 @@ int main(int argc, char **argv)
 		gtpuheader->teid = htonl(0);
 		memcpy(sendbuffer,gtpuheader, sizeof(gtp_header));		
 		memcpy(sendbuffer+sizeof(gtp_header), recvbuffer, n);
-		
+			
 		printf("after read and adding header:\n");
 		udpfd = socket(AF_INET, SOCK_DGRAM, 0);
 		bzero(&remoteaddr, sizeof(remoteaddr));
 		remoteaddr.sin_family = AF_INET;
 		remoteaddr.sin_port = htons(2152);
-		inet_pton(AF_INET, "127.0.0.5", &remoteaddr.sin_addr);
+		inet_pton(AF_INET, "10.0.2.6", &remoteaddr.sin_addr);
 		printf("%d\n",setsockopt(udpfd,SOL_SOCKET,SO_BINDTODEVICE,"enp0s9",6));
 		sendto(udpfd,sendbuffer,n+sizeof(gtp_header),0,(struct sockaddr*)&remoteaddr,sizeof(remoteaddr));
 		free(sendbuffer);

@@ -1,5 +1,5 @@
 all: gtp_generator udp_packet_sender
-gtp_generator: gtp_generator.o
+gtp_generator: gtp_generator.o 
 	gcc -g -O2 -D_REENTRANT -Wall -o gtp_generator gtp_generator.o
 gtp_generator.o: gtp_generator.c
 	gcc -g -O2 -D_REENTRANT -Wall -c -o gtp_generator.o gtp_generator.c
